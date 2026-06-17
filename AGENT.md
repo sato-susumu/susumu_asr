@@ -59,8 +59,6 @@ IDLE
 | `SileroVADPlugin` | `vad_silero.py` | PyTorch + Silero VADで発話区間検出。`VADIterator` がサンプル数ベースで計算した精確なタイムスタンプを `VADResult.speech_start_sec` / `speech_end_sec` に格納 |
 | `WakewordPluginBase` | `plugin_base.py` | ウェイクワード検出抽象基底クラス。`process_frame(bytes) -> WakewordResult`、`reset()` を定義 |
 | `PassthroughWakewordPlugin` | `wakeword_passthrough.py` | ウェイクワードをスキップ。delay_sec 後に DETECTED を返す（SileroVAD単体モード用） |
-| `LivekitWakewordPlugin` | `wakeword_livekit.py` | livekit-wakeword（ONNX）でウェイクワード検出 |
-| `OpenWakewordPlugin` | `wakeword_openwakeword.py` | OpenWakeWord（tflite）でウェイクワード検出 |
 | `ASRPluginBase` | `plugin_base.py` | ASR抽象基底クラス。`run()` を定義 |
 | `GoogleCloudASRPlugin` | `asr_google.py` | ストリーミング認識（`single_utterance=True`）。別スレッドでレスポンス処理 |
 | `WhisperASRPlugin` | `asr_whisper.py` | バッチ認識。発話終了まで音声を蓄積してまとめてデコード |
@@ -72,8 +70,8 @@ IDLE
 | vad_plugin | wakeword_plugin | asr_plugin | 用途 |
 |---|---|---|---|
 | `silero_vad` | `passthrough` | `google_cloud` / `whisper` / `amivoice` | ウェイクワードなし常時認識 |
-| `silero_vad` | `livekit_wakeword` | `google_cloud` / `whisper` / `amivoice` | livekit-wakewordでウェイクワード検出 |
-| `silero_vad` | `openwakeword` | `google_cloud` / `whisper` / `amivoice` | OpenWakeWordでウェイクワード検出 |
+
+> ウェイクワード検出（`livekit_wakeword` / `openwakeword`）は廃止予定。詳細は [`susumu_asr/legacy/wakeword.md`](susumu_asr/legacy/wakeword.md) を参照。
 
 ### スレッド構成
 
@@ -130,23 +128,6 @@ IDLE
 - `{timestamp}_label.txt` — ラベル（タブ区切り：start, end, label）。`vad_speech`（区間）、`ww_detected`（点）、ASR認識結果（区間）、`[P] テキスト`（発話ごと最初のpartial、点）、`[F] テキスト`（final、点）
 - `{timestamp}_log.txt` — 全ログのファイル出力
 - `{timestamp}_waveform.png` — 波形画像
-
-## livekit-wakeword のインストール
-
-`livekit-wakeword` は `Requires-Python: >=3.11` と宣言されているが、推論に使う部分は Python 3.10 でも動作する（pure Python wheel）。ROS2 Humble（Python 3.10）へのインストールは以下で行う：
-
-```bash
-pip install livekit-wakeword --ignore-requires-python
-```
-
-`setup.py` の `install_requires` には含めない（通常の `pip install` でバージョン制約エラーになるため）。
-
-## ウェイクワードモデル
-
-`models/` ディレクトリに ONNX 形式で配置。デフォルトは `models/hey_mycroft_v0.1.onnx`。
-利用可能モデル: `alexa`, `hey_jarvis`, `hey_mycroft`, `hey_rhasspy`, `timer`, `weather`。
-モデルが存在しない場合は起動時に openWakeWord の GitHub リリース（v0.5.1）から自動ダウンロードされる。
-livekit-wakeword と openWakeWord は同じ embedding モデル（Google Speech Embedding）を使うため、openWakeWord 形式の ONNX モデルをそのまま livekit-wakeword で使用できる。
 
 ## AmiVoice ユーザー辞書（profileWords）
 
