@@ -5,7 +5,13 @@
 
 VAD (音声区間検出)、ウェイクワード検出、ASR (音声認識) を組み合わせて、ROS2上で動作させるパッケージです。
 
+![ASR モニターのデモ](docs/monitor_demo.gif)
+
+> リアルタイムモニター (`amivoice_debug.launch.py`) の動作例。波形・VAD 区間・ウェイクワード・ASR 認識結果をリアルタイム表示します。
+
 ![waveform](docs/waveform.png)
+
+> `debug=True` で出力される波形画像 (`*_waveform.png`) の例。録音した音声波形に VAD 検出区間・ウェイクワード・ASR 認識結果を重ねて表示し、認識結果を事後に確認できます。
 
 ---
 
